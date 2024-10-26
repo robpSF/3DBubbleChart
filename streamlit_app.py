@@ -6,7 +6,7 @@ import plotly.express as px
 st.title('3D Bubble Chart Viewer from Excel')
 st.write("""
 Upload an Excel file with the following columns: **Segment, Realism, Evaluation, Speed, Customisation, Revenue**.
-This app will create two interactive 3D bubble charts.
+This app will create three interactive 3D bubble charts.
 """)
 
 # Sidebar file uploader
@@ -86,6 +86,30 @@ if uploaded_file is not None:
             )
         )
         st.plotly_chart(fig2, use_container_width=True)
+
+        # Chart 3: Evaluation vs Speed vs Realism
+        st.header('3D Bubble Chart 3: Evaluation vs Speed vs Realism')
+        fig3 = px.scatter_3d(
+            df,
+            x='Evaluation',
+            y='Speed',
+            z='Realism',
+            size='Scaled Revenue',
+            color='Segment',
+            hover_name='Segment',  # Add segment name to the bubble on hover
+            opacity=0.7
+        )
+        fig3.update_layout(
+            scene=dict(
+                xaxis_title='Evaluation',
+                yaxis_title='Speed',
+                zaxis_title='Realism',
+                xaxis=dict(range=[0, 6]),
+                yaxis=dict(range=[0, 6]),
+                zaxis=dict(range=[0, 6])
+            )
+        )
+        st.plotly_chart(fig3, use_container_width=True)
 
     else:
         st.error('The uploaded file must contain the following columns: Segment, Realism, Evaluation, Speed, Customisation, Revenue.')
