@@ -1,13 +1,12 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
 
 # Title and instructions
-st.title('Enhanced 3D Bubble Chart Viewer from Excel')
+st.title('3D Bubble Chart Viewer from Excel')
 st.write("""
 Upload an Excel file with the following columns: **Segment, Realism, Evaluation, Speed, Customisation, Revenue**.
-This app will create two interactive 3D bubble charts with enhanced separation for better visibility.
+This app will create two interactive 3D bubble charts.
 """)
 
 # Sidebar file uploader
@@ -33,18 +32,12 @@ if uploaded_file is not None:
         capped_columns = ['Realism', 'Evaluation', 'Speed', 'Customisation']
         df[capped_columns] = df[capped_columns].clip(upper=6)
 
-        # Increase bubble size using a nonlinear transformation for better separation
-        df['Revenue'] = (df['Revenue'] ** 1.5).clip(upper=30)  # Apply power transformation and cap at 30
+        # Slider for adjusting Revenue scaling
+        st.sidebar.header('Bubble Size Scaling')
+        scaling_factor = st.sidebar.slider('Select Revenue Scaling Factor', 1.0, 10.0, 3.0)
 
-        # Add a small jitter to avoid overlaps in the 3D space
-        jitter_amount = 0.1
-        df['Realism'] = df['Realism'] + np.random.uniform(-jitter_amount, jitter_amount, df.shape[0])
-        df['Evaluation'] = df['Evaluation'] + np.random.uniform(-jitter_amount, jitter_amount, df.shape[0])
-        df['Speed'] = df['Speed'] + np.random.uniform(-jitter_amount, jitter_amount, df.shape[0])
-        df['Customisation'] = df['Customisation'] + np.random.uniform(-jitter_amount, jitter_amount, df.shape[0])
-
-        # Sidebar opacity selection
-        opacity = st.sidebar.slider('Select Bubble Opacity', 0.1, 1.0, 0.7)
+        # Apply scaling factor to Revenue and cap at a maximum of 10
+        df['Scaled Revenue'] = (df['Revenue'] * scaling_factor).clip(upper=10)
 
         # Chart 1: Realism vs Evaluation vs Customisation
         st.header('3D Bubble Chart 1: Realism vs Evaluation vs Customisation')
@@ -53,10 +46,10 @@ if uploaded_file is not None:
             x='Realism',
             y='Evaluation',
             z='Customisation',
-            size='Revenue',
+            size='Scaled Revenue',
             color='Segment',
             hover_name='Segment',  # Add segment name to the bubble on hover
-            opacity=opacity
+            opacity=0.7
         )
         fig1.update_layout(
             scene=dict(
@@ -77,10 +70,10 @@ if uploaded_file is not None:
             x='Speed',
             y='Customisation',
             z='Realism',
-            size='Revenue',
+            size='Scaled Revenue',
             color='Segment',
             hover_name='Segment',  # Add segment name to the bubble on hover
-            opacity=opacity
+            opacity=0.7
         )
         fig2.update_layout(
             scene=dict(
