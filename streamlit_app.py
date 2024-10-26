@@ -2,34 +2,82 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Input data section
-st.title('3D Bubble Chart Viewer')
+# Title and instructions
+st.title('3D Bubble Chart Viewer from Excel')
+st.write("""
+Upload an Excel file with the following columns: **Segment, Realism, Evaluation, Speed, Customisation, Revenue**.
+This app will create two interactive 3D bubble charts.
+""")
 
-st.sidebar.header('Input Data')
-# Define a simple form to collect data points
-data_points = st.sidebar.slider('Number of data points', 5, 100, 10)
+# Sidebar file uploader
+st.sidebar.header('Upload Excel File')
+uploaded_file = st.sidebar.file_uploader('Upload your Excel file (.xlsx)', type=['xlsx'])
 
-# Create an empty DataFrame to hold data
-data = {
-    'X': [st.sidebar.number_input(f'X[{i}]', value=i) for i in range(data_points)],
-    'Y': [st.sidebar.number_input(f'Y[{i}]', value=i*2) for i in range(data_points)],
-    'Z': [st.sidebar.number_input(f'Z[{i}]', value=i*3) for i in range(data_points)],
-    'Size': [st.sidebar.number_input(f'Size[{i}]', value=10) for i in range(data_points)]
-}
+if uploaded_file is not None:
+    # Load the Excel file
+    df = pd.read_excel(uploaded_file)
 
-df = pd.DataFrame(data)
+    # Preview of uploaded data
+    st.write('Preview of Uploaded Data:')
+    st.dataframe(df)
 
-# Plotting
-st.header('3D Bubble Chart')
-fig = px.scatter_3d(df, x='X', y='Y', z='Z', size='Size', opacity=0.7)
+    # Check if all required columns are present
+    required_columns = ['Segment', 'Realism', 'Evaluation', 'Speed', 'Customisation', 'Revenue']
+    if all(col in df.columns for col in required_columns):
+        
+        # Cap all values to a maximum of 6 for specified axes
+        capped_columns = ['Realism', 'Evaluation', 'Speed', 'Customisation']
+        df[capped_columns] = df[capped_columns].clip(upper=6)
 
-# Customize the layout for better interaction
-fig.update_layout(
-    scene=dict(
-        xaxis_title='X Axis',
-        yaxis_title='Y Axis',
-        zaxis_title='Z Axis'
-    )
-)
+        # Chart 1: Realism vs Evaluation vs Customisation
+        st.header('3D Bubble Chart 1: Realism vs Evaluation vs Customisation')
+        fig1 = px.scatter_3d(
+            df,
+            x='Realism',
+            y='Evaluation',
+            z='Customisation',
+            size='Revenue',
+            color='Segment',
+            opacity=0.7
+        )
+        fig1.update_layout(
+            scene=dict(
+                xaxis_title='Realism',
+                yaxis_title='Evaluation',
+                zaxis_title='Customisation',
+                xaxis=dict(range=[0, 6]),
+                yaxis=dict(range=[0, 6]),
+                zaxis=dict(range=[0, 6])
+            )
+        )
+        st.plotly_chart(fig1, use_container_width=True)
 
-st.plotly_chart(fig, use_container_width=True)
+        # Chart 2: Speed vs Customisation vs Realism
+        st.header('3D Bubble Chart 2: Speed vs Customisation vs Realism')
+        fig2 = px.scatter_3d(
+            df,
+            x='Speed',
+            y='Customisation',
+            z='Realism',
+            size='Revenue',
+            color='Segment',
+            opacity=0.7
+        )
+        fig2.update_layout(
+            scene=dict(
+                xaxis_title='Speed',
+                yaxis_title='Customisation',
+                zaxis_title='Realism',
+                xaxis=dict(range=[0, 6]),
+                yaxis=dict(range=[0, 6]),
+                zaxis=dict(range=[0, 6])
+            )
+        )
+        st.plotly_chart(fig2, use_container_width=True)
+
+    else:
+        st.error('The uploaded file must contain the following columns: Segment, Realism, Evaluation, Speed, Customisation, Revenue.')
+
+else:
+    st.warning('Please upload an Excel file to proceed.')
+
