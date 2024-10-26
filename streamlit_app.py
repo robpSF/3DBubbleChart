@@ -39,6 +39,9 @@ if uploaded_file is not None:
         # Apply scaling factor to Revenue
         df['Scaled Revenue'] = df['Revenue'] * scaling_factor
 
+        # Calculate sizeref for better scaling control
+        sizeref = 2. * df['Scaled Revenue'].max() / 50**2
+
         # Toggle to select size mode: area or diameter
         st.sidebar.header('Bubble Size Mode')
         size_mode = st.sidebar.radio('Select Size Mode', ('area', 'diameter'))
@@ -55,7 +58,7 @@ if uploaded_file is not None:
             hover_name='Segment',  # Add segment name to the bubble on hover
             opacity=0.7
         )
-        fig1.update_traces(marker=dict(sizemode=size_mode))
+        fig1.update_traces(marker=dict(sizemode=size_mode, sizeref=sizeref))
         fig1.update_layout(
             scene=dict(
                 xaxis_title='Realism',
@@ -80,7 +83,7 @@ if uploaded_file is not None:
             hover_name='Segment',  # Add segment name to the bubble on hover
             opacity=0.7
         )
-        fig2.update_traces(marker=dict(sizemode=size_mode))
+        fig2.update_traces(marker=dict(sizemode=size_mode, sizeref=sizeref))
         fig2.update_layout(
             scene=dict(
                 xaxis_title='Speed',
@@ -105,7 +108,7 @@ if uploaded_file is not None:
             hover_name='Segment',  # Add segment name to the bubble on hover
             opacity=0.7
         )
-        fig3.update_traces(marker=dict(sizemode=size_mode))
+        fig3.update_traces(marker=dict(sizemode=size_mode, sizeref=sizeref))
         fig3.update_layout(
             scene=dict(
                 xaxis_title='Evaluation',
