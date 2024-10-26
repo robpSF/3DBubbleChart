@@ -17,6 +17,9 @@ if uploaded_file is not None:
     # Load the Excel file
     df = pd.read_excel(uploaded_file)
 
+    # Strip spaces from column names
+    df.columns = df.columns.str.strip()
+
     # Preview of uploaded data
     st.write('Preview of Uploaded Data:')
     st.dataframe(df)
@@ -29,6 +32,9 @@ if uploaded_file is not None:
         capped_columns = ['Realism', 'Evaluation', 'Speed', 'Customisation']
         df[capped_columns] = df[capped_columns].clip(upper=6)
 
+        # Increase bubble size by multiplying revenue by 3 and cap at a maximum of 10
+        df['Revenue'] = (df['Revenue'] * 3).clip(upper=10)
+
         # Chart 1: Realism vs Evaluation vs Customisation
         st.header('3D Bubble Chart 1: Realism vs Evaluation vs Customisation')
         fig1 = px.scatter_3d(
@@ -38,6 +44,7 @@ if uploaded_file is not None:
             z='Customisation',
             size='Revenue',
             color='Segment',
+            hover_name='Segment',  # Add segment name to the bubble on hover
             opacity=0.7
         )
         fig1.update_layout(
@@ -61,6 +68,7 @@ if uploaded_file is not None:
             z='Realism',
             size='Revenue',
             color='Segment',
+            hover_name='Segment',  # Add segment name to the bubble on hover
             opacity=0.7
         )
         fig2.update_layout(
@@ -80,4 +88,3 @@ if uploaded_file is not None:
 
 else:
     st.warning('Please upload an Excel file to proceed.')
-
