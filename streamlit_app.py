@@ -36,8 +36,8 @@ if uploaded_file is not None:
         st.sidebar.header('Bubble Size Scaling')
         scaling_factor = st.sidebar.slider('Select Revenue Scaling Factor', 1.0, 10.0, 3.0)
 
-        # Apply scaling factor to Revenue and cap at a maximum of 10
-        df['Scaled Revenue'] = (df['Revenue'] * scaling_factor).clip(upper=10)
+        # Apply scaling factor to Revenue
+        df['Scaled Revenue'] = df['Revenue'] * scaling_factor
 
         # Chart 1: Realism vs Evaluation vs Customisation
         st.header('3D Bubble Chart 1: Realism vs Evaluation vs Customisation')
